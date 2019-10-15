@@ -36,6 +36,7 @@ class BookRepository extends ServiceEntityRepository
 
       return $this->findAll();
     }
+
     // /**
     //  * @return Book[] Returns an array of Book objects
     //  */
