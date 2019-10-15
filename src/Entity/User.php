@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 
@@ -42,10 +44,29 @@ class User implements UserInterface, \Serializable
    */
   private $isActive;
 
+  /**
+   * @ORM\ManyToMany(targetEntity="App\Entity\book", inversedBy="userWantsToRead")
+   */
+  private $toRead;
+
+  /**
+   * @ORM\ManyToMany(targetEntity="App\Entity\book", inversedBy="usersWhoReaded")
+   * @ORM\JoinTable(name="users_phonenumbers")
+   */
+  private $readed;
+
+  /**
+   * @ORM\OneToMany(targetEntity="App\Entity\BookRating", mappedBy="user", orphanRemoval=true)
+   */
+  private $bookRatings;
+
   public function __construct()
   {
     $this->isActive = true;
     $this->salt = md5(uniqid(null, true));
+    $this->toRead = new ArrayCollection();
+    $this->readed = new ArrayCollection();
+    $this->bookRatings = new ArrayCollection();
   }
 
   /**
@@ -113,5 +134,88 @@ class User implements UserInterface, \Serializable
     list (
       $this->id,
       ) = unserialize($serialized);
+  }
+
+  /**
+   * @return Collection|book[]
+   */
+  public function getToRead(): Collection
+  {
+      return $this->toRead;
+  }
+
+  public function addToRead(book $toRead): self
+  {
+      if (!$this->toRead->contains($toRead)) {
+          $this->toRead[] = $toRead;
+      }
+
+      return $this;
+  }
+
+  public function removeToRead(book $toRead): self
+  {
+      if ($this->toRead->contains($toRead)) {
+          $this->toRead->removeElement($toRead);
+      }
+
+      return $this;
+  }
+
+  /**
+   * @return Collection|book[]
+   */
+  public function getReaded(): Collection
+  {
+      return $this->readed;
+  }
+
+  public function addReaded(book $readed): self
+  {
+      if (!$this->readed->contains($readed)) {
+          $this->readed[] = $readed;
+      }
+
+      return $this;
+  }
+
+  public function removeReaded(book $readed): self
+  {
+      if ($this->readed->contains($readed)) {
+          $this->readed->removeElement($readed);
+      }
+
+      return $this;
+  }
+
+  /**
+   * @return Collection|BookRating[]
+   */
+  public function getBookRatings(): Collection
+  {
+      return $this->bookRatings;
+  }
+
+  public function addBookRating(BookRating $bookRating): self
+  {
+      if (!$this->bookRatings->contains($bookRating)) {
+          $this->bookRatings[] = $bookRating;
+          $bookRating->setUser($this);
+      }
+
+      return $this;
+  }
+
+  public function removeBookRating(BookRating $bookRating): self
+  {
+      if ($this->bookRatings->contains($bookRating)) {
+          $this->bookRatings->removeElement($bookRating);
+          // set the owning side to null (unless already changed)
+          if ($bookRating->getUser() === $this) {
+              $bookRating->setUser(null);
+          }
+      }
+
+      return $this;
   }
 }

@@ -26,7 +26,7 @@ class Author
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $surName;
+    private $surname;
 
     /**
      * @ORM\ManyToMany(targetEntity="App\Entity\book", inversedBy="authors")

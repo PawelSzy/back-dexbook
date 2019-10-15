@@ -53,9 +53,27 @@ class Book
      */
     private $authors;
 
+    /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\User", mappedBy="toRead")
+     */
+    private $userWantsToRead;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\User", mappedBy="readed")
+     */
+    private $usersWhoReaded;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\BookRating", mappedBy="book", orphanRemoval=true)
+     */
+    private $bookRatings;
+
     public function __construct()
     {
         $this->authors = new ArrayCollection();
+        $this->userWantsToRead = new ArrayCollection();
+        $this->usersWhoReaded = new ArrayCollection();
+        $this->bookRatings = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -158,6 +176,93 @@ class Book
         if ($this->authors->contains($author)) {
             $this->authors->removeElement($author);
             $author->removeBook($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|User[]
+     */
+    public function getUserWantsToRead(): Collection
+    {
+        return $this->userWantsToRead;
+    }
+
+    public function addUserWantsToRead(User $userWantsToRead): self
+    {
+        if (!$this->userWantsToRead->contains($userWantsToRead)) {
+            $this->userWantsToRead[] = $userWantsToRead;
+            $userWantsToRead->addToRead($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUserWantsToRead(User $userWantsToRead): self
+    {
+        if ($this->userWantsToRead->contains($userWantsToRead)) {
+            $this->userWantsToRead->removeElement($userWantsToRead);
+            $userWantsToRead->removeToRead($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|User[]
+     */
+    public function getUsersWhoReaded(): Collection
+    {
+        return $this->usersWhoReaded;
+    }
+
+    public function addUsersWhoReaded(User $usersWhoReaded): self
+    {
+        if (!$this->usersWhoReaded->contains($usersWhoReaded)) {
+            $this->usersWhoReaded[] = $usersWhoReaded;
+            $usersWhoReaded->addReaded($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUsersWhoReaded(User $usersWhoReaded): self
+    {
+        if ($this->usersWhoReaded->contains($usersWhoReaded)) {
+            $this->usersWhoReaded->removeElement($usersWhoReaded);
+            $usersWhoReaded->removeReaded($this);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|BookRating[]
+     */
+    public function getBookRatings(): Collection
+    {
+        return $this->bookRatings;
+    }
+
+    public function addBookRating(BookRating $bookRating): self
+    {
+        if (!$this->bookRatings->contains($bookRating)) {
+            $this->bookRatings[] = $bookRating;
+            $bookRating->setBook($this);
+        }
+
+        return $this;
+    }
+
+    public function removeBookRating(BookRating $bookRating): self
+    {
+        if ($this->bookRatings->contains($bookRating)) {
+            $this->bookRatings->removeElement($bookRating);
+            // set the owning side to null (unless already changed)
+            if ($bookRating->getBook() === $this) {
+                $bookRating->setBook(null);
+            }
         }
 
         return $this;
