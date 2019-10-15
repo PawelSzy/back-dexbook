@@ -45,12 +45,12 @@ class User implements UserInterface, \Serializable
   private $isActive;
 
   /**
-   * @ORM\ManyToMany(targetEntity="App\Entity\book", inversedBy="userWantsToRead")
+   * @ORM\ManyToMany(targetEntity="App\Entity\Book", inversedBy="userWantsToRead")
    */
   private $toRead;
 
   /**
-   * @ORM\ManyToMany(targetEntity="App\Entity\book", inversedBy="usersWhoReaded")
+   * @ORM\ManyToMany(targetEntity="App\Entity\Book", inversedBy="usersWhoReaded")
    * @ORM\JoinTable(name="users_phonenumbers")
    */
   private $readed;

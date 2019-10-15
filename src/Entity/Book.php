@@ -50,6 +50,7 @@ class Book
 
     /**
      * @ORM\ManyToMany(targetEntity="App\Entity\Author", mappedBy="books")
+     * @ORM\JoinTable(name="authors")
      */
     private $authors;
 
