@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Book;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
+use Symfony\Component\Serializer\SerializerInterface;
 
 /**
  * @method Book|null find($id, $lockMode = null, $lockVersion = null)
@@ -14,11 +15,27 @@ use Doctrine\Common\Persistence\ManagerRegistry;
  */
 class BookRepository extends ServiceEntityRepository
 {
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(ManagerRegistry $registry, SerializerInterface $serializer)
     {
         parent::__construct($registry, Book::class);
+        $this->serializer = $serializer;
     }
 
+    public function getAllBooks(string $format = 'html') {
+      if ($format == 'json') {
+        $books = $this->findAll();
+        $json = $this->serializer->serialize(
+          $books,
+          'json', [
+          'circular_reference_handler' => function ($object) {
+            return $object->getId();
+          }
+        ]);
+        return $json;
+      }
+
+      return $this->findAll();
+    }
     // /**
     //  * @return Book[] Returns an array of Book objects
     //  */
