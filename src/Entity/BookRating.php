@@ -75,6 +75,6 @@ class BookRating
     }
 
     public function __toString() {
-      return (string) $this.getBook() . " " .  $this.getRating;
+      return (string) $this->getBook() . " " .  $this->getRating();
     }
 }
