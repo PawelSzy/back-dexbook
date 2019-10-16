@@ -17,13 +17,13 @@ class BookRating
     private $id;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\book", inversedBy="bookRatings")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Book", inversedBy="bookRatings")
      * @ORM\JoinColumn(nullable=false)
      */
     private $book;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\user", inversedBy="bookRatings")
+     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="bookRatings")
      * @ORM\JoinColumn(nullable=false)
      */
     private $user;
@@ -62,12 +62,12 @@ class BookRating
         return $this;
     }
 
-    public function getRating(): ?int
+    public function getRating(): ?float
     {
         return $this->rating;
     }
 
-    public function setRating(int $rating): self
+    public function setRating(float $rating): self
     {
         $this->rating = $rating;
 
