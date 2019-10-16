@@ -73,4 +73,8 @@ class BookRating
 
         return $this;
     }
+
+    public function __toString() {
+      return (string) $this.getBook() . " " .  $this.getRating;
+    }
 }

@@ -218,4 +218,58 @@ class User implements UserInterface, \Serializable
 
       return $this;
   }
+
+  public function __toString() {
+    return $this->getUsername();
+  }
+
+  public function getId(): ?int
+  {
+      return $this->id;
+  }
+
+  public function setUsername(string $username): self
+  {
+      $this->username = $username;
+
+      return $this;
+  }
+
+  public function setSalt(string $salt): self
+  {
+      $this->salt = $salt;
+
+      return $this;
+  }
+
+  public function setPassword(string $password): self
+  {
+      $this->password = $password;
+
+      return $this;
+  }
+
+  public function getEmail(): ?string
+  {
+      return $this->email;
+  }
+
+  public function setEmail(string $email): self
+  {
+      $this->email = $email;
+
+      return $this;
+  }
+
+  public function getIsActive(): ?bool
+  {
+      return $this->isActive;
+  }
+
+  public function setIsActive(bool $isActive): self
+  {
+      $this->isActive = $isActive;
+
+      return $this;
+  }
 }
