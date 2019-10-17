@@ -29,7 +29,7 @@ class Author
     private $surname;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\book", inversedBy="authors")
+     * @ORM\ManyToMany(targetEntity="App\Entity\Book", inversedBy="authors")
      */
     private $books;
 

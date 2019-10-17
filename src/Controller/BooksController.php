@@ -28,7 +28,7 @@ class BooksController extends AbstractController
   }
 
   /**
-   * @Route("/book/{id}", name="book")
+   * @Route("/books/{id}", name="book")
    */
   public function getBook(Book $book)
   {
