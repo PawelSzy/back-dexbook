@@ -49,7 +49,7 @@ class Book
     private $image;
 
     /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\Author", mappedBy="books")
+     * @ORM\ManyToMany(targetEntity="App\Entity\Author", mappedBy="books", cascade={"persist"})
      * @ORM\JoinTable(name="authors")
      */
     private $authors;

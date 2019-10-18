@@ -36,29 +36,40 @@ class BookController extends AbstractController
      */
     public function new(Request $request): Response
     {
-      if (this->getRequest()->isMethod('POST');) {
-        $serializer = $this->get('serializer');
-        $book = $serializer->deserialize($request->getBody(), Book::class, 'json');
-        $em = $this->getDoctrin()->getManager();
-        $em->persist(book);
+      if ($request->isMethod('post')) {
+        $book = $this->serializer->deserialize($request->getContent(), Book::class, 'json');
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($book);
         $em->flush();
-      }
-        $book = new Book();
-        $form = $this->createForm(BookType::class, $book);
-        $form->handleRequest($request);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->persist($book);
-            $entityManager->flush();
-
-            return $this->redirectToRoute('book_index');
-        }
-
-        return $this->render('book/new.html.twig', [
-            'book' => $book,
-            'form' => $form->createView(),
+        $json = $this->serializer->serialize(
+          $book,
+          'json', [
+          'circular_reference_handler' => function ($object) {
+            return $object->getId();
+          }
         ]);
+        $response = new Response($json);
+        $response->headers->set('Content-Type', 'application/json');
+        return $response;
+      }
+
+      $book = new Book();
+      $form = $this->createForm(BookType::class, $book);
+      $form->handleRequest($request);
+
+      if ($form->isSubmitted() && $form->isValid()) {
+        $entityManager = $this->getDoctrine()->getManager();
+        $entityManager->persist($book);
+        $entityManager->flush();
+
+        return $this->redirectToRoute('book_index');
+      }
+
+      return $this->render('book/new.html.twig', [
+        'book' => $book,
+        'form' => $form->createView(),
+      ]);
     }
 
     /**
@@ -84,7 +95,6 @@ class BookController extends AbstractController
       $response = new Response($json);
       $response->headers->set('Content-Type', 'application/json');
       return $response;
-
     }
 
     /**
