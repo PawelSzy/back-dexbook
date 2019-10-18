@@ -39,6 +39,8 @@ class BookController extends AbstractController
       if ($request->isMethod('post')) {
         $book = $this->serializer->deserialize($request->getContent(), Book::class, 'json');
         $em = $this->getDoctrine()->getManager();
+        $repo = $em->getRepository(Book::class);
+        $book = $repo->checkIfAuthorExistAndReplaceWithExisting($book);
         $em->persist($book);
         $em->flush();
 

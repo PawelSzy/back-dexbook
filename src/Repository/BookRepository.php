@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Author;
 use App\Entity\Book;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
@@ -35,6 +36,23 @@ class BookRepository extends ServiceEntityRepository
       }
 
       return $this->findAll();
+    }
+
+    public function checkIfAuthorExistAndReplaceWithExisting(Book $book) {
+      $authors = $book->getAuthors();
+      $em = $this->getEntityManager();
+      $repo = $em->getRepository(Author::class);
+      foreach($authors->getIterator() as $i => $author) {
+        $existingAuthor = $repo->findOneBy([
+          'firstName' => $author->getFirstName(),
+          'surname' => $author->getSurname(),
+        ]);
+        if($existingAuthor) {
+            $book->removeAuthor($author);
+            $book->addAuthor($existingAuthor);
+        }
+      }
+      return $book;
     }
 
     // /**
