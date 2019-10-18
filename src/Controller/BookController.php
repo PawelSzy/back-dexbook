@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * @Route("/book")
@@ -17,9 +18,10 @@ use Symfony\Component\Serializer\SerializerInterface;
 class BookController extends AbstractController
 {
 
-  function __construct(SerializerInterface $serializer)
+  function __construct(SerializerInterface $serializer, ValidatorInterface $validator)
   {
     $this->serializer = $serializer;
+    $this->validator = $validator;
   }
     /**
      * @Route("/", name="book_index", methods={"GET"})
@@ -41,6 +43,8 @@ class BookController extends AbstractController
         $em = $this->getDoctrine()->getManager();
         $repo = $em->getRepository(Book::class);
         $book = $repo->checkIfAuthorExistAndReplaceWithExisting($book);
+        $error = $this->validator->validate($book);
+        $book = $repo->checkIfBookExist($book);
         $em->persist($book);
         $em->flush();
 

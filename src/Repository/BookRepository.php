@@ -55,6 +55,35 @@ class BookRepository extends ServiceEntityRepository
       return $book;
     }
 
+  /**
+   * Check if Book is in database
+   * If is in: return book existing in db
+   */
+    public function checkIfBookExist(Book $book) {
+      $authors = $book->getAuthors();
+      $finded = $this->findBooksWithTitleAndAuthors($book, $authors);
+      if(count($finded) != 0) {
+        return $finded[0];
+      }
+      return $book;
+    }
+
+
+  public function findBooksWithTitleAndAuthors(Book $book, $authors): ?Array
+  {
+    $authors_id = $authors->map(function($obj){return $obj->getId();})->getValues();
+    $result = $this->createQueryBuilder('b')
+        ->where('b.title = :title')
+        ->setParameter('title', $book->getTitle())
+        ->andWhere(':authors MEMBER OF b.authors')
+        ->setParameter('authors', $authors->toArray())
+        ->getQuery()
+        ->getResult()
+    ;
+    return $result;
+  }
+
+
     // /**
     //  * @return Book[] Returns an array of Book objects
     //  */
