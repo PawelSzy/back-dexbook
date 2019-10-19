@@ -39,7 +39,7 @@ class BookController extends AbstractController
      */
     public function new(Request $request): Response
     {
-      if ($request->isMethod('post')) {
+      if ($request->isMethod('post') && $request->query->get('format') == 'json') {
         $book = $this->serializer->deserialize($request->getContent(), Book::class, 'json');
         $em = $this->getDoctrine()->getManager();
         if (false) {
@@ -59,16 +59,7 @@ class BookController extends AbstractController
           }
         }
 
-        $json = $this->serializer->serialize(
-          $book,
-          'json', [
-          'circular_reference_handler' => function ($object) {
-            return $object->getId();
-          }
-        ]);
-        $response = new Response($json);
-        $response->headers->set('Content-Type', 'application/json');
-        return $response;
+        return $this->_book_to_json_response($book);
       }
 
       $book = new Book();
@@ -100,18 +91,7 @@ class BookController extends AbstractController
           'book' => $book,
         ]);
       }
-
-      $json = $this->serializer->serialize(
-        $book,
-        'json', [
-        'circular_reference_handler' => function ($object) {
-          return $object->getId();
-        }
-      ]);
-
-      $response = new Response($json);
-      $response->headers->set('Content-Type', 'application/json');
-      return $response;
+      return $this->_book_to_json_response($book);
     }
 
     /**
@@ -119,19 +99,32 @@ class BookController extends AbstractController
      */
     public function edit(Request $request, Book $book): Response
     {
-        $form = $this->createForm(BookType::class, $book);
-        $form->handleRequest($request);
+      if ($request->isMethod('post') && $request->query->get('format') == 'json') {
+        $jsonBook = $this->serializer->deserialize(
+          $request->getContent(),
+          Book::class,
+          'json',
+          ['object_to_populate' => $book]
+        );
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($jsonBook);
+        $em->flush();
+        return $this->_book_to_json_response($jsonBook);
+      }
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $this->getDoctrine()->getManager()->flush();
+      $form = $this->createForm(BookType::class, $book);
+      $form->handleRequest($request);
 
-            return $this->redirectToRoute('book_index');
-        }
+      if ($form->isSubmitted() && $form->isValid()) {
+          $this->getDoctrine()->getManager()->flush();
 
-        return $this->render('book/edit.html.twig', [
-            'book' => $book,
-            'form' => $form->createView(),
-        ]);
+          return $this->redirectToRoute('book_index');
+      }
+
+      return $this->render('book/edit.html.twig', [
+          'book' => $book,
+          'form' => $form->createView(),
+      ]);
     }
 
     /**
@@ -146,5 +139,19 @@ class BookController extends AbstractController
         }
 
         return $this->redirectToRoute('book_index');
+    }
+
+    private function _book_to_json_response($book)
+    {
+      $json = $this->serializer->serialize(
+        $book,
+        'json', [
+        'circular_reference_handler' => function ($object) {
+          return $object->getId();
+        }
+      ]);
+      $response = new Response($json);
+      $response->headers->set('Content-Type', 'application/json');
+      return $response;
     }
 }
