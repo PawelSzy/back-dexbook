@@ -91,6 +91,7 @@ class BookController extends AbstractController
           'book' => $book,
         ]);
       }
+
       return $this->_book_to_json_response($book);
     }
 
@@ -152,6 +153,7 @@ class BookController extends AbstractController
       ]);
       $response = new Response($json);
       $response->headers->set('Content-Type', 'application/json');
+      
       return $response;
     }
 }
