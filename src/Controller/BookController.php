@@ -110,7 +110,7 @@ class BookController extends AbstractController
         $em = $this->getDoctrine()->getManager();
         $em->persist($jsonBook);
         $em->flush();
-        
+
         return $this->_book_to_json_response($jsonBook);
       }
 
@@ -134,13 +134,19 @@ class BookController extends AbstractController
      */
     public function delete(Request $request, Book $book): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$book->getId(), $request->request->get('_token'))) {
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->remove($book);
-            $entityManager->flush();
-        }
+      if ($request->query->get('format') == 'json') {
+        $entityManager = $this->getDoctrine()->getManager();
+        $entityManager->remove($book);
+        $entityManager->flush();
+        return new JsonResponse(['message' => 'Book deleted'], Response::HTTP_NO_CONTENT);
+      }
+      if ($this->isCsrfTokenValid('delete'.$book->getId(), $request->request->get('_token'))) {
+          $entityManager = $this->getDoctrine()->getManager();
+          $entityManager->remove($book);
+          $entityManager->flush();
+      }
 
-        return $this->redirectToRoute('book_index');
+      return $this->redirectToRoute('book_index');
     }
 
     private function _book_to_json_response($book)
