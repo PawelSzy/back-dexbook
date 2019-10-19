@@ -59,13 +59,14 @@ class BookRepository extends ServiceEntityRepository
    * Check if Book is in database
    * If is in: return book existing in db
    */
-    public function checkIfBookExist(Book $book) {
+    public function checkIfBookExist(Book $book): ?Book
+    {
       $authors = $book->getAuthors();
       $finded = $this->findBooksWithTitleAndAuthors($book, $authors);
-      if(count($finded) != 0) {
+      if (count($finded) != 0) {
         return $finded[0];
       }
-      return $book;
+      return null;
     }
 
 

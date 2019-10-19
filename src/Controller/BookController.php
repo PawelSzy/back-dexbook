@@ -44,9 +44,16 @@ class BookController extends AbstractController
         $repo = $em->getRepository(Book::class);
         $book = $repo->checkIfAuthorExistAndReplaceWithExisting($book);
         $error = $this->validator->validate($book);
-        $book = $repo->checkIfBookExist($book);
-        $em->persist($book);
-        $em->flush();
+        $existingBook = $repo->checkIfBookExist($book);
+        if ($existingBook) {
+          $em->merge($existingBook);
+          $book = $existingBook;
+        }
+        else {
+          $em->persist($book);
+          $em->flush();
+        }
+//        $em->flush();
 
         $json = $this->serializer->serialize(
           $book,
