@@ -110,6 +110,7 @@ class BookController extends AbstractController
         $em = $this->getDoctrine()->getManager();
         $em->persist($jsonBook);
         $em->flush();
+        
         return $this->_book_to_json_response($jsonBook);
       }
 
@@ -153,7 +154,7 @@ class BookController extends AbstractController
       ]);
       $response = new Response($json);
       $response->headers->set('Content-Type', 'application/json');
-      
+
       return $response;
     }
 }
