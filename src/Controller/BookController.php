@@ -6,6 +6,7 @@ use App\Entity\Book;
 use App\Form\BookType;
 use App\Repository\BookRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -41,19 +42,22 @@ class BookController extends AbstractController
       if ($request->isMethod('post')) {
         $book = $this->serializer->deserialize($request->getContent(), Book::class, 'json');
         $em = $this->getDoctrine()->getManager();
-        $repo = $em->getRepository(Book::class);
-        $book = $repo->checkIfAuthorExistAndReplaceWithExisting($book);
-        $error = $this->validator->validate($book);
-        $existingBook = $repo->checkIfBookExist($book);
-        if ($existingBook) {
+        if (false) {
           $em->merge($existingBook);
           $book = $existingBook;
         }
         else {
-          $em->persist($book);
-          $em->flush();
+          try {
+            $em->persist($book);
+            $em->flush();
+          } catch (\Exception $e) {
+            if ($e->getMessage() == 'Book exist') {
+              return new JsonResponse(['error' => 'Book exist'], Response::HTTP_CONFLICT);
+            } else {
+              throw $e;
+            }
+          }
         }
-//        $em->flush();
 
         $json = $this->serializer->serialize(
           $book,

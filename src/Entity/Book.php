@@ -4,10 +4,12 @@ namespace App\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\BookRepository")
+ * @ORM\HasLifecycleCallbacks()
  */
 class Book
 {
@@ -271,5 +273,44 @@ class Book
 
     public function __toString() {
       return $this->getTitle();
+  }
+
+  /**
+   * @ORM\PrePersist
+   */
+  public function checkIfAuthorExistAndReplaceWithExisting(LifecycleEventArgs $args)
+  {
+    $em = $args->getEntityManager();
+    $authors = $this->getAuthors();
+    $repo = $em->getRepository(Author::class);
+    foreach ($authors->getIterator() as $i => $author) {
+      $existingAuthor = $repo->findOneBy([
+        'firstName' => $author->getFirstName(),
+        'surname' => $author->getSurname(),
+      ]);
+      if ($existingAuthor) {
+        $this->removeAuthor($author);
+        $this->addAuthor($existingAuthor);
+      }
+    }
+  }
+
+
+  /**
+   * @ORM\PrePersist
+   *
+   * Check if Book is in database
+   * If is in: return book existing in db
+   */
+  public function checkIfBookExist(LifecycleEventArgs $args)
+  {
+    $em = $args->getEntityManager();
+    $repo = $em->getRepository(Book::class);
+
+    $authors = $this->getAuthors();
+    $finded = $repo->findBooksWithTitleAndAuthors($this, $authors);
+    if (count($finded) != 0) {
+      throw new \Exception('Book exist');
+    }
   }
 }
