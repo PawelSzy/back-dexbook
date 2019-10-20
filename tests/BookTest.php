@@ -56,6 +56,18 @@ class BookTest extends WebTestCase
     $this->assertEquals($changedBook->id, $book['id']);
   }
 
+  /**
+   * @dataProvider bookProvider
+   */
+  public function testDeleteBook($book) {
+    $client = self::createClient();
+    $writtenBook = $this->writeNewBook($book, $client);
+    $id = $writtenBook->id;
+    $client->xmlHttpRequest('DELETE', "/book/{$id}?format=json");
+    $client->xmlHttpRequest('GET', "/book/{$id}?format=json");
+    $this->assertEquals(404, $client->getResponse()->getStatusCode());
+  }
+
   public function bookProvider() {
     yield [[
       "authors" => [["firstName" => "Stanislaw", "surname" => "Lem"]],
