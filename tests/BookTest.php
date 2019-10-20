@@ -13,12 +13,7 @@ class BookTest extends WebTestCase
   {
     $client = self::createClient();
     $title = $book['title'];
-    $client->xmlHttpRequest('POST', '/book/new?XDEBUG_SESSION_START=PHPSTORM&format=json',
-      [],
-      [], [],
-      json_encode($book));
-    $writtenBook = $this->getBookFromClient($client);
-
+    $writtenBook = $this->writeNewBook($book, $client);
     $this->assertResponseIsSuccessful();
     $this->assertNotNull($writtenBook->id);
     $this->assertEquals($writtenBook->title, $title);
@@ -30,20 +25,37 @@ class BookTest extends WebTestCase
   public function testCreateAndReadBook($book) {
     $client = self::createClient();
     $title = $book['title'];
-    $client->xmlHttpRequest('POST', '/book/new?XDEBUG_SESSION_START=PHPSTORM&format=json',
-      [],
-      [], [],
-      json_encode($book));
-    $writtenBook = $this->getBookFromClient($client);
+    $writtenBook = $this->writeNewBook($book, $client);
 
     $id = $writtenBook->id;
     $client->xmlHttpRequest('GET', "/book/{$id}?format=json");
     $readedBook = $this->getBookFromClient($client);
-
+    $this->assertResponseIsSuccessful();
     $this->assertNotNull($readedBook->id);
     $this->assertEquals($readedBook->title, $title);
-    $this->assertResponseIsSuccessful();
   }
+
+  /**
+   * @dataProvider bookProvider
+   */
+  public function testBookChange($book) {
+    $client = self::createClient();
+    $writtenBook = $this->writeNewBook($book, $client);
+
+    $id = $writtenBook->id;
+    $book['title'] = 'test_title';
+    $book['id'] = $id;
+
+    $client->xmlHttpRequest('POST', "/book/{$id}/edit?format=json",
+      [],
+      [], [],
+      json_encode($book));
+    $changedBook = $this->getBookFromClient($client);
+    $this->assertResponseIsSuccessful();
+    $this->assertEquals($changedBook->title, $book['title']);
+    $this->assertEquals($changedBook->id, $book['id']);
+  }
+
   public function bookProvider() {
     yield [[
       "authors" => [["firstName" => "Stanislaw", "surname" => "Lem"]],
@@ -57,5 +69,15 @@ class BookTest extends WebTestCase
     $response = $client->getResponse();
     $readedBook = json_decode($response->getContent());
     return $readedBook;
+  }
+
+  public function writeNewBook($book, $client)
+  {
+    $client->xmlHttpRequest('POST', '/book/new?XDEBUG_SESSION_START=PHPSTORM&format=json',
+      [],
+      [], [],
+      json_encode($book));
+    $writtenBook = $this->getBookFromClient($client);
+    return $writtenBook;
   }
 }
