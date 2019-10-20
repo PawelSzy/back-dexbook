@@ -30,4 +30,9 @@
     <listeners>
         <listener class="Symfony\Bridge\PhpUnit\SymfonyTestsListener" />
     </listeners>
+
+    <!-- Add this for PHPUnit 7.1 or higher -->
+    <extensions>
+        <extension class="DAMA\DoctrineTestBundle\PHPUnit\PHPUnitExtension"/>
+    </extensions>
 </phpunit>

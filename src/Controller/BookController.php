@@ -42,6 +42,7 @@ class BookController extends AbstractController
       if ($request->isMethod('post') && $request->query->get('format') == 'json') {
         $book = $this->serializer->deserialize($request->getContent(), Book::class, 'json');
         $em = $this->getDoctrine()->getManager();
+
         if (false) {
           $em->merge($existingBook);
           $book = $existingBook;
