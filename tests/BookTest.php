@@ -9,7 +9,7 @@ class BookTest extends WebTestCase
   /**
    * @dataProvider bookProvider
    */
-  public function testCreateReadBook($book)
+  public function testCreateBook($book)
   {
     $client = self::createClient();
     $title = $book['title'];

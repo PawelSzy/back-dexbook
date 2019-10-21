@@ -43,20 +43,14 @@ class BookController extends AbstractController
         $book = $this->serializer->deserialize($request->getContent(), Book::class, 'json');
         $em = $this->getDoctrine()->getManager();
 
-        if (false) {
-          $em->merge($existingBook);
-          $book = $existingBook;
-        }
-        else {
-          try {
-            $em->persist($book);
-            $em->flush();
-          } catch (\Exception $e) {
-            if ($e->getMessage() == 'Book exist') {
-              return new JsonResponse(['error' => 'Book exist'], Response::HTTP_CONFLICT);
-            } else {
-              throw $e;
-            }
+        try {
+          $em->persist($book);
+          $em->flush();
+        } catch (\Exception $e) {
+          if ($e->getMessage() == 'Book exist') {
+            return new JsonResponse(['error' => 'Book exist'], Response::HTTP_CONFLICT);
+          } else {
+            throw $e;
           }
         }
 

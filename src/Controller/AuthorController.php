@@ -6,15 +6,22 @@ use App\Entity\Author;
 use App\Form\AuthorType;
 use App\Repository\AuthorRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\SerializerInterface;
 
 /**
  * @Route("/author")
  */
 class AuthorController extends AbstractController
 {
+  function __construct(SerializerInterface $serializer)
+  {
+    $this->serializer = $serializer;
+  }
+
     /**
      * @Route("/", name="author_index", methods={"GET"})
      */
@@ -30,6 +37,23 @@ class AuthorController extends AbstractController
      */
     public function new(Request $request): Response
     {
+      if ($request->isMethod('post') && $request->query->get('format') == 'json') {
+        $author = $this->serializer->deserialize($request->getContent(), Author::class, 'json');
+        $em = $this->getDoctrine()->getManager();
+
+        try {
+          $em->persist($author);
+          $em->flush();
+        } catch (\Exception $e) {
+          if ($e->getMessage() == 'Author exist') {
+            return new JsonResponse(['error' => 'Author exist'], Response::HTTP_CONFLICT);
+          } else {
+            throw $e;
+          }
+        }
+        return $this->_author_to_json_response($author);
+      }
+
         $author = new Author();
         $form = $this->createForm(AuthorType::class, $author);
         $form->handleRequest($request);
@@ -51,8 +75,11 @@ class AuthorController extends AbstractController
     /**
      * @Route("/{id}", name="author_show", methods={"GET"})
      */
-    public function show(Author $author): Response
+    public function show(Author $author, Request $request): Response
     {
+      if ($request->query->get('format') == 'json') {
+        return $this->_author_to_json_response($author);
+      }
         return $this->render('author/show.html.twig', [
             'author' => $author,
         ]);
@@ -63,6 +90,20 @@ class AuthorController extends AbstractController
      */
     public function edit(Request $request, Author $author): Response
     {
+      if ($request->isMethod('post') && $request->query->get('format') == 'json') {
+        $jsonAuthor = $this->serializer->deserialize(
+          $request->getContent(),
+          Author::class,
+          'json',
+          ['object_to_populate' => $author]
+        );
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($jsonAuthor);
+        $em->flush();
+
+        return $this->_author_to_json_response($jsonAuthor);
+      }
+      
         $form = $this->createForm(AuthorType::class, $author);
         $form->handleRequest($request);
 
@@ -83,12 +124,34 @@ class AuthorController extends AbstractController
      */
     public function delete(Request $request, Author $author): Response
     {
-        if ($this->isCsrfTokenValid('delete'.$author->getId(), $request->request->get('_token'))) {
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->remove($author);
-            $entityManager->flush();
-        }
+      if ($request->query->get('format') == 'json') {
+        $entityManager = $this->getDoctrine()->getManager();
+        $entityManager->remove($author);
+        $entityManager->flush();
+        return new JsonResponse(['message' => 'author deleted'], Response::HTTP_NO_CONTENT);
+      }
+      
+      if ($this->isCsrfTokenValid('delete'.$author->getId(), $request->request->get('_token'))) {
+          $entityManager = $this->getDoctrine()->getManager();
+          $entityManager->remove($author);
+          $entityManager->flush();
+      }
 
-        return $this->redirectToRoute('author_index');
+      return $this->redirectToRoute('author_index');
+    }
+
+    private function _author_to_json_response($author)
+    {
+      $json = $this->serializer->serialize(
+        $author,
+        'json', [
+        'circular_reference_handler' => function ($object) {
+          return $object->getId();
+        }
+      ]);
+      $response = new Response($json);
+      $response->headers->set('Content-Type', 'application/json');
+
+      return $response;
     }
 }
