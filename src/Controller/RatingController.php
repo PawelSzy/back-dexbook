@@ -38,29 +38,3 @@ class RatingController extends AbstractController
     ]);
   }
 }
-
-//
-/// src/Controller/TaskController.php
-//namespace App\Controller;
-//
-//use App\Entity\Task;
-//use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-//use Symfony\Component\Form\Extension\Core\Type\DateType;
-//use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-//use Symfony\Component\Form\Extension\Core\Type\TextType;
-//use Symfony\Component\HttpFoundation\Request;
-//
-//class TaskController extends AbstractController
-//{
-//  public function new(Request $request)
-//    {
-//        $task = new Task();
-//        // ...
-//
-//        $form = $this->createForm(TaskType::class, $task);
-//
-//        return $this->render('task/new.html.twig', [
-//            'form' => $form->createView(),
-//        ]);
-//    }
-//}

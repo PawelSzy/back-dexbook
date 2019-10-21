@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Author;
 use App\Form\AuthorType;
 use App\Repository\AuthorRepository;
+use App\Traits\ControllerTrait;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,20 +18,22 @@ use Symfony\Component\Serializer\SerializerInterface;
  */
 class AuthorController extends AbstractController
 {
+  use ControllerTrait;
+
   function __construct(SerializerInterface $serializer)
   {
     $this->serializer = $serializer;
   }
 
-    /**
-     * @Route("/", name="author_index", methods={"GET"})
-     */
-    public function index(AuthorRepository $authorRepository): Response
-    {
-        return $this->render('author/index.html.twig', [
-            'authors' => $authorRepository->findAll(),
-        ]);
-    }
+  /**
+   * @Route("/", name="author_index", methods={"GET"})
+   */
+  public function index(AuthorRepository $authorRepository): Response
+  {
+      return $this->render('author/index.html.twig', [
+          'authors' => $authorRepository->findAll(),
+      ]);
+  }
 
     /**
      * @Route("/new", name="author_new", methods={"GET","POST"})
@@ -51,7 +54,7 @@ class AuthorController extends AbstractController
             throw $e;
           }
         }
-        return $this->_author_to_json_response($author);
+        return $this->_object_to_json_response($author);
       }
 
         $author = new Author();
@@ -78,7 +81,7 @@ class AuthorController extends AbstractController
     public function show(Author $author, Request $request): Response
     {
       if ($request->query->get('format') == 'json') {
-        return $this->_author_to_json_response($author);
+        return $this->_object_to_json_response($author);
       }
         return $this->render('author/show.html.twig', [
             'author' => $author,
@@ -101,7 +104,7 @@ class AuthorController extends AbstractController
         $em->persist($jsonAuthor);
         $em->flush();
 
-        return $this->_author_to_json_response($jsonAuthor);
+        return $this->_object_to_json_response($jsonAuthor);
       }
       
         $form = $this->createForm(AuthorType::class, $author);
@@ -138,20 +141,5 @@ class AuthorController extends AbstractController
       }
 
       return $this->redirectToRoute('author_index');
-    }
-
-    private function _author_to_json_response($author)
-    {
-      $json = $this->serializer->serialize(
-        $author,
-        'json', [
-        'circular_reference_handler' => function ($object) {
-          return $object->getId();
-        }
-      ]);
-      $response = new Response($json);
-      $response->headers->set('Content-Type', 'application/json');
-
-      return $response;
     }
 }

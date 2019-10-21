@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Book;
 use App\Form\BookType;
 use App\Repository\BookRepository;
+use App\Traits\ControllerTrait;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -18,6 +19,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  */
 class BookController extends AbstractController
 {
+  use ControllerTrait;
 
   function __construct(SerializerInterface $serializer, ValidatorInterface $validator)
   {
@@ -54,7 +56,7 @@ class BookController extends AbstractController
           }
         }
 
-        return $this->_book_to_json_response($book);
+        return $this->_object_to_json_response($book);
       }
 
       $book = new Book();
@@ -87,7 +89,7 @@ class BookController extends AbstractController
         ]);
       }
 
-      return $this->_book_to_json_response($book);
+      return $this->_object_to_json_response($book);
     }
 
     /**
@@ -106,7 +108,7 @@ class BookController extends AbstractController
         $em->persist($jsonBook);
         $em->flush();
 
-        return $this->_book_to_json_response($jsonBook);
+        return $this->_object_to_json_response($jsonBook);
       }
 
       $form = $this->createForm(BookType::class, $book);
@@ -142,20 +144,5 @@ class BookController extends AbstractController
       }
 
       return $this->redirectToRoute('book_index');
-    }
-
-    private function _book_to_json_response($book)
-    {
-      $json = $this->serializer->serialize(
-        $book,
-        'json', [
-        'circular_reference_handler' => function ($object) {
-          return $object->getId();
-        }
-      ]);
-      $response = new Response($json);
-      $response->headers->set('Content-Type', 'application/json');
-
-      return $response;
     }
 }
