@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Book;
 use App\Entity\User;
 use App\Form\UserType;
 use App\Repository\UserRepository;
@@ -75,19 +76,59 @@ class UserController extends AbstractController
       ]);
     }
 
-    /**
-     * @Route("/{id}", name="user_show", methods={"GET"})
-     */
-    public function show(User $user, Request $request): Response
-    {
-      if ($request->query->get('format') == 'json') {
-        return $this->_object_to_json_response($user);
-      }
+  /**
+   * @Route("/{id}/add-to-read-book/{bookId}", name="add_to_read_book", methods={"POST"},  requirements={"id":"\d+"})
+   */
+  public function addToRead(User $user, int $bookId) {
+    $book = $this->getDoctrine()
+      ->getRepository(Book::class)
+      ->find($bookId);
+    $em = $this->getDoctrine()->getManager();
 
-      return $this->render('user/show.html.twig', [
-          'user' => $user,
-      ]);
+    $user = $user->addToRead($book);
+    $em->persist($user);
+    $em->flush();
+
+    return $this->_object_to_json_response($user);
+  }
+
+  /**
+   * @Route("/get-to-read-books/{id}", name="get_to_read_books", methods={"GET"},  requirements={"id":"\d+"})
+   */
+  public function getToRead(User $user) {
+  return $this->_object_to_json_response($user->getToRead());
+  }
+
+  /**
+   * @Route("/delete-to-read-books/{id}/{bookId}", name="delete_to_read_books", methods={"DELETE"},  requirements={"id":"\d+"})
+   */
+  public function deleteToRead(User $user, int $bookId) {
+    $book = $this->getDoctrine()
+      ->getRepository(Book::class)
+      ->find($bookId);
+    $em = $this->getDoctrine()->getManager();
+
+    $user = $user->removeToRead($book);
+    $em->persist($user);
+    $em->flush();
+
+    return $this->_object_to_json_response($user);
+  }
+
+
+  /**
+   * @Route("/{id}", name="user_show", methods={"GET"})
+   */
+  public function show(User $user, Request $request): Response
+  {
+    if ($request->query->get('format') == 'json') {
+      return $this->_object_to_json_response($user);
     }
+
+    return $this->render('user/show.html.twig', [
+        'user' => $user,
+    ]);
+  }
 
   /**
    * @Route("/{id}/edit", name="user_edit", methods={"GET","POST"})
@@ -121,7 +162,7 @@ class UserController extends AbstractController
         'user' => $user,
         'form' => $form->createView(),
     ]);
-}
+  }
 
   /**
    * @Route("/{id}", name="user_delete", methods={"DELETE"})
