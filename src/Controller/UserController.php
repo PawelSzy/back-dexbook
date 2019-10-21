@@ -76,6 +76,47 @@ class UserController extends AbstractController
       ]);
     }
 
+
+
+  /**
+   * @Route("/{id}/add-readed-book/{bookId}", name="add-readed-book", methods={"POST"},  requirements={"id":"\d+"})
+   */
+  public function addReaded(User $user, int $bookId) {
+    $book = $this->getDoctrine()
+      ->getRepository(Book::class)
+      ->find($bookId);
+    $em = $this->getDoctrine()->getManager();
+
+    $user = $user->addReaded($book);
+    $em->persist($user);
+    $em->flush();
+
+    return $this->_object_to_json_response($user);
+  }
+
+ /**
+  * @Route("/get-readed-books/{id}", name="get_readed_books", methods={"GET"},  requirements={"id":"\d+"})
+  */
+  public function getReaded(User $user) {
+    return $this->_object_to_json_response($user->getReaded());
+  }
+
+ /**
+  * @Route("/delete-readed-books/{id}/{bookId}", name="delete_readed_books", methods={"DELETE"},  requirements={"id":"\d+"})
+  */
+  public function deleteReaded(User $user, int $bookId) {
+    $book = $this->getDoctrine()
+      ->getRepository(Book::class)
+      ->find($bookId);
+    $em = $this->getDoctrine()->getManager();
+
+    $user = $user->removeReaded($book);
+    $em->persist($user);
+    $em->flush();
+
+    return $this->_object_to_json_response($user);
+  }
+
   /**
    * @Route("/{id}/add-to-read-book/{bookId}", name="add_to_read_book", methods={"POST"},  requirements={"id":"\d+"})
    */

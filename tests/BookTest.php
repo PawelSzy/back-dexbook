@@ -2,10 +2,13 @@
 
 namespace App\Tests;
 
+use App\Traits\BookAuthorTestTrait;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class BookTest extends WebTestCase
 {
+  use BookAuthorTestTrait;
+
   /**
    * @dataProvider bookProvider
    */
@@ -13,7 +16,7 @@ class BookTest extends WebTestCase
   {
     $client = self::createClient();
     $title = $book['title'];
-    $writtenBook = $this->writeNewBook($book, $client);
+    $writtenBook = $this->writeData($book, $client, '/book/new');
     $this->assertResponseIsSuccessful();
     $this->assertNotNull($writtenBook->id);
     $this->assertEquals($writtenBook->title, $title);
@@ -25,11 +28,11 @@ class BookTest extends WebTestCase
   public function testCreateAndReadBook($book) {
     $client = self::createClient();
     $title = $book['title'];
-    $writtenBook = $this->writeNewBook($book, $client);
+    $writtenBook = $this->writeData($book, $client, '/book/new');
 
     $id = $writtenBook->id;
     $client->xmlHttpRequest('GET', "/book/{$id}?format=json");
-    $readedBook = $this->getBookFromClient($client);
+    $readedBook = $this->getDataFromClient($client);
     $this->assertResponseIsSuccessful();
     $this->assertNotNull($readedBook->id);
     $this->assertEquals($readedBook->title, $title);
@@ -40,7 +43,7 @@ class BookTest extends WebTestCase
    */
   public function testBookChange($book) {
     $client = self::createClient();
-    $writtenBook = $this->writeNewBook($book, $client);
+    $writtenBook = $this->writeData($book, $client, '/book/new');
 
     $id = $writtenBook->id;
     $book['title'] = 'test_title';
@@ -50,7 +53,7 @@ class BookTest extends WebTestCase
       [],
       [], [],
       json_encode($book));
-    $changedBook = $this->getBookFromClient($client);
+    $changedBook = $this->getDataFromClient($client);
     $this->assertResponseIsSuccessful();
     $this->assertEquals($changedBook->title, $book['title']);
     $this->assertEquals($changedBook->id, $book['id']);
@@ -61,7 +64,7 @@ class BookTest extends WebTestCase
    */
   public function testDeleteBook($book) {
     $client = self::createClient();
-    $writtenBook = $this->writeNewBook($book, $client);
+    $writtenBook = $this->writeData($book, $client, '/book/new');
     $id = $writtenBook->id;
     $client->xmlHttpRequest('DELETE', "/book/{$id}?format=json");
     $client->xmlHttpRequest('GET', "/book/{$id}?format=json");
@@ -74,22 +77,5 @@ class BookTest extends WebTestCase
       "title" => "Eden",
       "price" => 10
     ]];
-  }
-
-  public function getBookFromClient($client)
-  {
-    $response = $client->getResponse();
-    $readedBook = json_decode($response->getContent());
-    return $readedBook;
-  }
-
-  public function writeNewBook($book, $client)
-  {
-    $client->xmlHttpRequest('POST', '/book/new?XDEBUG_SESSION_START=PHPSTORM&format=json',
-      [],
-      [], [],
-      json_encode($book));
-    $writtenBook = $this->getBookFromClient($client);
-    return $writtenBook;
   }
 }

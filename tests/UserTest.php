@@ -2,11 +2,12 @@
 
 namespace App\Tests;
 
+use App\Traits\BookAuthorTestTrait;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class UserTest extends WebTestCase
 {
-
+  use BookAuthorTestTrait;
   /**
    * @dataProvider userProvider
    */
@@ -145,21 +146,4 @@ class UserTest extends WebTestCase
      ],
     ];
   }
-
-  public function writeData($data, $client, $url = '/user/new')
-  {
-    $client->xmlHttpRequest('POST', "{$url}?XDEBUG_SESSION_START=PHPSTORM&format=json",
-      [],
-      [], [],
-      json_encode($data));
-    $writtenUser = $this->getDataFromClient($client);
-    return $writtenUser;
-  }
-
-  public function getDataFromClient($client)
-  {
-    $response = $client->getResponse();
-    return json_decode($response->getContent());
-  }
-
 }

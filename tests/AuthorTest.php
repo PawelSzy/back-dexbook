@@ -2,11 +2,13 @@
 
 namespace App\Tests;
 
+use App\Traits\BookAuthorTestTrait;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class AuthorTest extends WebTestCase
 {
 
+  use BookAuthorTestTrait;
   /**
    * @dataProvider authorProvider
    */
@@ -15,7 +17,7 @@ class AuthorTest extends WebTestCase
     $client = self::createClient();
 
     $firstName = $author['firstName'];
-    $writtenAuthor = $this->writeNewAuthor($author, $client);
+    $writtenAuthor = $this->writeData($author, $client, '/author/new');
     $this->assertResponseIsSuccessful();
     $this->assertNotNull($writtenAuthor->id);
     $this->assertEquals($writtenAuthor->firstName, $firstName);
@@ -29,12 +31,12 @@ class AuthorTest extends WebTestCase
     $client = self::createClient();
 
     $firstName = $author['firstName'];
-    $writtenAuthor = $this->writeNewAuthor($author, $client);
+    $writtenAuthor = $this->writeData($author, $client, '/author/new');
     $this->assertResponseIsSuccessful();
     $newId = $writtenAuthor->id;
 
     $client->xmlHttpRequest('GET', "/author/{$newId}?format=json");
-    $readedAuthor= $this->getAuthorFromClient($client);
+    $readedAuthor= $this->getDataFromClient($client);
     $this->assertResponseIsSuccessful();
     $this->assertEquals($readedAuthor->id, $newId);
     $this->assertEquals($readedAuthor->firstName, $firstName);
@@ -45,7 +47,7 @@ class AuthorTest extends WebTestCase
    */
   public function testBookChange($author) {
     $client = self::createClient();
-    $writtenAuthor = $this->writeNewAuthor($author, $client);
+    $writtenAuthor = $this->writeData($author, $client, '/author/new');
 
     $id = $writtenAuthor->id;
     $author['firstName'] = 'test_name';
@@ -55,7 +57,7 @@ class AuthorTest extends WebTestCase
       [],
       [], [],
       json_encode($author));
-    $changedBook = $this->getAuthorFromClient($client);
+    $changedBook = $this->getDataFromClient($client);
     $this->assertResponseIsSuccessful();
     $this->assertEquals($changedBook->firstName, $author['firstName']);
     $this->assertEquals($changedBook->id, $author['id']);
@@ -66,7 +68,7 @@ class AuthorTest extends WebTestCase
    */
   public function testDeleteauthor($author) {
     $client = self::createClient();
-    $writtenauthor = $this->writeNewAuthor($author, $client);
+    $writtenauthor = $this->writeData($author, $client, '/author/new');
     $id = $writtenauthor->id;
     $client->xmlHttpRequest('DELETE', "/author/{$id}?format=json");
     $client->xmlHttpRequest('GET', "/author/{$id}?format=json");
@@ -75,22 +77,5 @@ class AuthorTest extends WebTestCase
 
   public function authorProvider() {
     yield [["firstName" => "John", "surname" => "TestGalt"]];
-  }
-
-  public function writeNewAuthor($author, $client)
-  {
-    $client->xmlHttpRequest('POST', '/author/new?XDEBUG_SESSION_START=PHPSTORM&format=json',
-      [],
-      [], [],
-      json_encode($author));
-    $writtenAuthor = $this->getAuthorFromClient($client);
-    return $writtenAuthor;
-  }
-
-  public function getAuthorFromClient($client)
-  {
-    $response = $client->getResponse();
-    $author = json_decode($response->getContent());
-    return $author;
   }
 }
