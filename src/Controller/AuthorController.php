@@ -122,9 +122,9 @@ class AuthorController extends AbstractController
         ]);
     }
 
-    /**
-     * @Route("/{id}", name="author_delete", methods={"DELETE"})
-     */
+   /**
+    * @Route("/{id}", name="author_delete", methods={"DELETE"})
+    */
     public function delete(Request $request, Author $author): Response
     {
       if ($request->query->get('format') == 'json') {

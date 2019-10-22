@@ -111,7 +111,7 @@ class RatingController extends AbstractController
   }
 
   /**
-   * @Route("/{id}", name="author_delete", methods={"DELETE"})
+   * @Route("/{id}", name="rating_delete", methods={"DELETE"})
    */
   public function delete(Request $request, BookRating $rating): Response
   {
