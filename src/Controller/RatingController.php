@@ -48,6 +48,7 @@ class RatingController extends AbstractController
       $user = $this->getDoctrine()
         ->getRepository(User::class)
         ->find($requestContent->user_id);
+
       $rating->setUser($user);
       $rating->setBook($book);
       $rating->setRating($requestContent->rating);

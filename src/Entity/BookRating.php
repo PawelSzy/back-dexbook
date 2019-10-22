@@ -46,6 +46,9 @@ class BookRating
     public function setBook(?book $book): self
     {
         $this->book = $book;
+        if(($user = $this->getUser()) && $this->getRating() != null) {
+          $book->addUsersWhoReaded($user);
+        }
 
         return $this;
     }
@@ -58,6 +61,9 @@ class BookRating
     public function setUser(?user $user): self
     {
         $this->user = $user;
+        if(($book = $this->getBook()) && $this->getRating() != null) {
+          $book->addUsersWhoReaded($user);
+        }
 
         return $this;
     }
