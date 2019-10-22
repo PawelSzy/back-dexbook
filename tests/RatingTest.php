@@ -80,6 +80,17 @@ class RatingTest extends WebTestCase
     $this->assertEquals(404, $this->client->getResponse()->getStatusCode());
   }
 
+  public function testIfBookHasRatingIsAlsoReaded() {
+    $writtenRating = $this->writeData($this->rating, $this->client, '/rating/add-new-rating');
+    $ratingId = $writtenRating->id;
+
+    $this->client->xmlHttpRequest('GET', "/book/{$this->bookId}?format=json");
+    $book = $this->getDataFromClient($this->client);
+
+    $this->assertNotEmpty($book->usersWhoReaded);
+    $this->assertEquals($this->userId, $book->usersWhoReaded[0]->id);
+  }
+
   public function bookAuthorProvider() {
     yield [
       [

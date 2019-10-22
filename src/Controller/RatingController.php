@@ -38,7 +38,7 @@ class RatingController extends AbstractController
   {
     if ($request->query->get('format') == 'json') {
       $requestContent = $request->getContent();
-      $rating = $this->serializer->deserialize($requestContent, BookRating::class, 'json');
+      $rating = new BookRating();
 
       $requestContent = json_decode($requestContent);
       $book = $this->getDoctrine()
@@ -50,6 +50,7 @@ class RatingController extends AbstractController
         ->find($requestContent->user_id);
       $rating->setUser($user);
       $rating->setBook($book);
+      $rating->setRating($requestContent->rating);
 
       $em = $this->getDoctrine()->getManager();
 

@@ -70,6 +70,7 @@ class BookRating
     public function setRating(float $rating): self
     {
         $this->rating = $rating;
+        $this->getBook()->addUsersWhoReaded($this->getUser());
 
         return $this;
     }
