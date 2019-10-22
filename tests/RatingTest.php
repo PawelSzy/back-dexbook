@@ -20,7 +20,6 @@ class RatingTest extends WebTestCase
   private $user;
   private $rating;
 
-
   public function setUp()
   {
     $this->client = self::createClient();
@@ -40,20 +39,14 @@ class RatingTest extends WebTestCase
     ];
   }
 
-  /**
-   * @dataProvider bookAuthorProvider
-   */
-  public function testNewRating($user, $book) {
+  public function testNewRating() {
     $writtenRating = $this->writeData($this->rating, $this->client, '/rating/add-new-rating');
     $this->assertResponseIsSuccessful();
     $this->assertNotNull($writtenRating->id);
     $this->assertEquals($writtenRating->rating, $this->bookRating);
   }
 
-  /**
-   * @dataProvider bookAuthorProvider
-   */
-  public function testReadRating($user, $book) {
+  public function testReadRating() {
     $writtenRating = $this->writeData($this->rating, $this->client, '/rating/add-new-rating');
     $ratingId = $writtenRating->id;
     $this->client->xmlHttpRequest('GET', "/rating/{$ratingId}?format=json");
@@ -68,14 +61,23 @@ class RatingTest extends WebTestCase
     $writtenRating = $this->writeData($this->rating, $this->client, '/rating/add-new-rating');
     $ratingId = $writtenRating->id;
 
-    $writtenRating->rating = 3;
+    $this->rating = 3;
 
-    $this->client->xmlHttpRequest('GET', "/rating/{$ratingId}?format=json");
+    $writtenRating = $this->writeData($this->rating, $this->client, "/rating/{$ratingId}/edit");
     $readedRating= $this->getDataFromClient($this->client);
     $this->assertResponseIsSuccessful();
 
     $this->assertNotNull($readedRating->id);
-    $this->assertEquals($readedRating->rating, $this->bookRating);
+    $this->assertEquals($readedRating->rating, $writtenRating->rating);
+  }
+
+  public function testDeleterating() {
+    $writtenRating = $this->writeData($this->rating, $this->client, '/rating/add-new-rating');
+    $ratingId = $writtenRating->id;
+
+    $this->client->xmlHttpRequest('DELETE', "/rating/{$ratingId}?format=json");
+    $this->client->xmlHttpRequest('GET', "/rating/{$ratingId}?format=json");
+    $this->assertEquals(404, $this->client->getResponse()->getStatusCode());
   }
 
   public function bookAuthorProvider() {

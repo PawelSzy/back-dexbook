@@ -9,6 +9,7 @@ use App\Form\RatingType;
 use App\Repository\BookRatingRepository;
 use App\Traits\ControllerTrait;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -82,10 +83,42 @@ class RatingController extends AbstractController
   }
 
   /**
+   * @Route("/{id}/edit", name="rating_edit", methods={"POST"})
+   */
+  public function edit(Request $request, BookRating $rating): Response
+  {
+    if ($request->isMethod('post') && $request->query->get('format') == 'json') {
+      $jsonRating = $this->serializer->deserialize(
+        $request->getContent(),
+        BookRating::class,
+        'json',
+        ['object_to_populate' => $rating]
+      );
+      $em = $this->getDoctrine()->getManager();
+      $em->persist($jsonRating);
+      $em->flush();
+
+      return $this->_object_to_json_response($jsonRating);
+   }
+  }  
+  /**
    * @Route("/{id}", name="rating_show", methods={"GET"})
    */
   public function show(BookRating $rating, Request $request)
   {
     return $this->_object_to_json_response($rating);
+  }
+
+  /**
+   * @Route("/{id}", name="author_delete", methods={"DELETE"})
+   */
+  public function delete(Request $request, BookRating $rating): Response
+  {
+    if ($request->query->get('format') == 'json') {
+      $entityManager = $this->getDoctrine()->getManager();
+      $entityManager->remove($rating);
+      $entityManager->flush();
+      return new JsonResponse(['message' => 'rating deleted'], Response::HTTP_NO_CONTENT);
+    }
   }
 }
