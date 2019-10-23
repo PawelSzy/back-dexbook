@@ -79,7 +79,9 @@ class UserController extends AbstractController
 
 
   /**
-   * @Route("/{id}/add-readed-book/{bookId}", name="add-readed-book", methods={"POST"},  requirements={"id":"\d+"})
+   * @Route("/{id}/add-readed-book/{bookId}", name="add-readed-book", methods={"POST"},
+   * requirements={"id":"\d+", "bookId":"\d+"}
+   * )
    */
   public function addReaded(User $user, int $bookId) {
     $book = $this->getDoctrine()
@@ -102,7 +104,9 @@ class UserController extends AbstractController
   }
 
  /**
-  * @Route("/delete-readed-books/{id}/{bookId}", name="delete_readed_books", methods={"DELETE"},  requirements={"id":"\d+"})
+  * @Route("/delete-readed-books/{id}/{bookId}", name="delete_readed_books", methods={"DELETE"},
+  * requirements={"id":"\d+", "bookId":"\d+"}
+  * )
   */
   public function deleteReaded(User $user, int $bookId) {
     $book = $this->getDoctrine()
@@ -118,7 +122,9 @@ class UserController extends AbstractController
   }
 
   /**
-   * @Route("/{id}/add-to-read-book/{bookId}", name="add_to_read_book", methods={"POST"},  requirements={"id":"\d+"})
+   * @Route("/{id}/add-to-read-book/{bookId}", name="add_to_read_book", methods={"POST"},
+   * requirements={"id":"\d+", "bookId":"\d+"}
+   * )
    */
   public function addToRead(User $user, int $bookId) {
     $book = $this->getDoctrine()
@@ -134,14 +140,16 @@ class UserController extends AbstractController
   }
 
   /**
-   * @Route("/get-to-read-books/{id}", name="get_to_read_books", methods={"GET"},  requirements={"id":"\d+"})
+   * @Route("/get-to-read-books/{id}", name="get_to_read_books", methods={"GET"}, requirements={"id":"\d+"})
    */
   public function getToRead(User $user) {
   return $this->_object_to_json_response($user->getToRead());
   }
 
   /**
-   * @Route("/delete-to-read-books/{id}/{bookId}", name="delete_to_read_books", methods={"DELETE"},  requirements={"id":"\d+"})
+   * @Route("/delete-to-read-books/{id}/{bookId}", name="delete_to_read_books", methods={"DELETE"},
+   * requirements={"id":"\d+", "bookId":"\d+"}
+   * )
    */
   public function deleteToRead(User $user, int $bookId) {
     $book = $this->getDoctrine()
@@ -158,7 +166,7 @@ class UserController extends AbstractController
 
 
   /**
-   * @Route("/{id}", name="user_show", methods={"GET"})
+   * @Route("/{id}", name="user_show", methods={"GET"}, requirements={"id":"\d+"})
    */
   public function show(User $user, Request $request): Response
   {
@@ -172,7 +180,7 @@ class UserController extends AbstractController
   }
 
   /**
-   * @Route("/{id}/edit", name="user_edit", methods={"GET","POST"})
+   * @Route("/{id}/edit", name="user_edit", methods={"GET","POST"}, requirements={"id":"\d+"})
    */
   public function edit(Request $request, User $user): Response
   {
@@ -206,7 +214,7 @@ class UserController extends AbstractController
   }
 
   /**
-   * @Route("/{id}", name="user_delete", methods={"DELETE"})
+   * @Route("/{id}", name="user_delete", methods={"DELETE"}, requirements={"id":"\d+"})
    */
   public function delete(Request $request, User $user): Response
   {
