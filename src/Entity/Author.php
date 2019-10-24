@@ -5,9 +5,15 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use ApiPlatform\Core\Annotation\ApiResource;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\AuthorRepository")
+ * @ApiResource(
+ *  normalizationContext={"groups"={"author:read"}},
+ *  denormalizationContext={"groups"={"author:write"}},
+ * )
  */
 class Author
 {
@@ -15,21 +21,25 @@ class Author
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"author:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"author:read", "author:write", "book:read"})
      */
     private $firstName;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups({"author:read", "author:write", "book:read"})
      */
     private $surname;
 
     /**
      * @ORM\ManyToMany(targetEntity="App\Entity\Book", inversedBy="authors")
+     * @Groups({"author:read", "author:write"})
      */
     private $books;
 

@@ -6,10 +6,16 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Mapping as ORM;
+use ApiPlatform\Core\Annotation\ApiResource;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\BookRepository")
  * @ORM\HasLifecycleCallbacks()
+ * @ApiResource(
+ *  normalizationContext={"groups"={"book:read"}},
+ *  denormalizationContext={"groups"={"book:write"}},
+ * )
  */
 class Book
 {
@@ -17,16 +23,19 @@ class Book
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"book:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"book:read", "book:write", "author:read"})
      */
     private $title;
 
     /**
      * @ORM\Column(type="integer", nullable=true)
+     * @Groups({"book:read", "book:write"})
      */
     private $price;
 
@@ -37,22 +46,26 @@ class Book
 
     /**
      * @ORM\Column(type="integer", nullable=true)
+     * @Groups({"book:read", "book:write"})
      */
     private $score;
 
     /**
      * @ORM\Column(type="float", nullable=true)
+     * @Groups({"book:read", "book:write"})
      */
     private $rating;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @Groups({"book:read", "book:write"})
      */
     private $image;
 
     /**
      * @ORM\ManyToMany(targetEntity="App\Entity\Author", mappedBy="books", cascade={"persist"})
      * @ORM\JoinTable(name="authors")
+     * @Groups({"book:read", "book:write"})
      */
     private $authors;
 

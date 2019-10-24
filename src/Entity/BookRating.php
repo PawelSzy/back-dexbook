@@ -3,9 +3,14 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use ApiPlatform\Core\Annotation\ApiResource;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\BookRatingRepository")
+ * @ORM\Entity(
+ *  repositoryClass="App\Repository\BookRatingRepository"
+ * )
+ * @ApiResource()
+ *
  */
 class BookRating
 {
