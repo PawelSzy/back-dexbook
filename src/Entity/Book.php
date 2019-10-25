@@ -29,7 +29,7 @@ class Book
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"book:read", "book:write", "author:read"})
+     * @Groups({"book:read", "book:write", "author:read", "book_rating:read"})
      */
     private $title;
 
@@ -304,6 +304,11 @@ class Book
       if ($existingAuthor) {
         $this->removeAuthor($author);
         $this->addAuthor($existingAuthor);
+      }
+      else {
+        $em->persist($author);
+        $em->flush();
+        $this->addAuthor($author);
       }
     }
   }

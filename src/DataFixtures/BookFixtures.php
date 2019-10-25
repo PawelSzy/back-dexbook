@@ -30,6 +30,7 @@ class BookFixtures extends Fixture
       $author->setFirstName($bookData['author']);
       $author->setSurname($bookData['surname']);
       $manager->persist($author);
+      $manager->flush();
       $book->addAuthor($author);
       $book->setTitle($bookData['title']);
       $book->setPrice($bookData['price']);

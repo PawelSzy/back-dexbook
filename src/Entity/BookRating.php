@@ -4,12 +4,16 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Core\Annotation\ApiResource;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(
  *  repositoryClass="App\Repository\BookRatingRepository"
  * )
- * @ApiResource()
+ * @ApiResource(
+ *  normalizationContext={"groups"={"book_rating:read"}},
+ *  denormalizationContext={"groups"={"book_rating:write"}},
+ * )
  *
  */
 class BookRating
@@ -18,23 +22,27 @@ class BookRating
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"book_rating:read"})
      */
     private $id;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Book", inversedBy="bookRatings")
      * @ORM\JoinColumn(nullable=false)
+     * @Groups({"book_rating:read", "book_rating:write"})
      */
     private $book;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="bookRatings")
      * @ORM\JoinColumn(nullable=false)
+     * @Groups({"book_rating:read", "book_rating:write"})
      */
     private $user;
 
     /**
      * @ORM\Column(type="smallint")
+     * @Groups({"book_rating:read", "book_rating:write"})
      */
     private $rating;
 

@@ -21,25 +21,25 @@ class Author
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"author:read"})
+     * @Groups({"author:read", "book:read", "book_rating:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"author:read", "author:write", "book:read"})
+     * @Groups({"author:read", "author:write", "book:read", "book:write", "book_rating:read"})
      */
     private $firstName;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
-     * @Groups({"author:read", "author:write", "book:read"})
+     * @Groups({"author:read", "author:write", "book:read", "book:write", "book_rating:read"})
      */
     private $surname;
 
     /**
      * @ORM\ManyToMany(targetEntity="App\Entity\Book", inversedBy="authors")
-     * @Groups({"author:read", "author:write"})
+     * @Groups({"author:read", "author:write", "book:write"})
      */
     private $books;
 
