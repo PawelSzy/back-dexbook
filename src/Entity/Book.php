@@ -305,14 +305,8 @@ class Book
         $this->removeAuthor($author);
         $this->addAuthor($existingAuthor);
       }
-      else {
-        $em->persist($author);
-        $em->flush();
-        $this->addAuthor($author);
-      }
     }
   }
-
 
   /**
    * @ORM\PrePersist
