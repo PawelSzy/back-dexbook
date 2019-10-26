@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -18,6 +19,8 @@ use Symfony\Component\Validator\Constraints as Assert;
  *  normalizationContext={"groups"={"user:read", "book_rating:read"}},
  *  denormalizationContext={"groups"={"user:write"}},
  * )
+ * @UniqueEntity(fields={"username"})
+ * @UniqueEntity(fields={"email"})
  */
 class User implements UserInterface
 {
@@ -40,6 +43,10 @@ class User implements UserInterface
    * @ORM\Column(type="string", length=180, unique=true)
    * @Assert\NotBlank
    * @Groups({"user:read", "user:write"})
+   * @Assert\Email(
+   *     message = "The email '{{ value }}' is not a valid email.",
+   *     checkMX = true
+   * )
    */
   private $email;
 
