@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiFilter;
+use ApiPlatform\Core\Annotation\ApiSubresource;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -10,18 +12,23 @@ use Doctrine\Common\Collections\Collection;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 
 /**
+ * @ApiFilter(
+ *  SearchFilter::class, properties={"username": "exact", "email": "exact" }
+ * )
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  * @ApiResource(
- *  collectionOperations={"post"},
+ *  collectionOperations={
+ *  "post",
+ *  "get"
+ * },
  *  itemOperations={
  *     "get"={"access_control"="is_granted('USER_AUTHENTICATED')"},
- *     "delete",
+ *     "delete"={"access_control"="is_granted('USER_AUTHENTICATED')"},
  *     "put"={"access_control"="is_granted('USER_AUTHENTICATED')"},
  *  },
- *  collectionOperations={"post"},
- *  itemOperations={"get"},
  *  normalizationContext={"groups"={"user:read", "book_rating:read"}},
  *  denormalizationContext={"groups"={"user:write"}},
  * )
@@ -82,6 +89,7 @@ class User implements UserInterface
   /**
    * @ORM\ManyToMany(targetEntity="App\Entity\Book", inversedBy="usersWhoReaded")
    * @ORM\JoinTable(name="users_phonenumbers")
+   * @ApiSubresource()
    */
   private $readed;
 
