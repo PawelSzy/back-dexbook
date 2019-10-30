@@ -2,11 +2,18 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiFilter;
 use Doctrine\ORM\Mapping as ORM;
 use ApiPlatform\Core\Annotation\ApiResource;
 use Symfony\Component\Serializer\Annotation\Groups;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 
 /**
+ *
+ *
+ * @ApiFilter(
+ *  SearchFilter::class, properties={"book": "exact", "user": "exact" }
+ * )
  * @ORM\Entity(
  *  repositoryClass="App\Repository\BookRatingRepository"
  * )
@@ -49,6 +56,11 @@ class BookRating
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function setId(int $id)
+    {
+      $this->id = $id;
     }
 
     public function getBook(): ?book

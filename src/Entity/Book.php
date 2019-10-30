@@ -23,7 +23,7 @@ class Book
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"book:read"})
+     * @Groups({"book:read", "book_rating:read"})
      */
     private $id;
 
@@ -71,16 +71,19 @@ class Book
 
     /**
      * @ORM\ManyToMany(targetEntity="App\Entity\User", mappedBy="toRead")
+     * @Groups({"book:read", "book:write"})
      */
     private $userWantsToRead;
 
     /**
      * @ORM\ManyToMany(targetEntity="App\Entity\User", mappedBy="readed")
+     * @Groups({"book:read", "book:write"})
      */
     private $usersWhoReaded;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\BookRating", mappedBy="book", orphanRemoval=true)
+     * @Groups({"book:read", "book:write"})
      */
     private $bookRatings;
 

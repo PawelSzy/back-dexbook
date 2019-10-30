@@ -28,6 +28,7 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
  *     "get"={"access_control"="is_granted('USER_AUTHENTICATED')"},
  *     "delete"={"access_control"="is_granted('USER_AUTHENTICATED')"},
  *     "put"={"access_control"="is_granted('USER_AUTHENTICATED')"},
+ *     "patch"
  *  },
  *  normalizationContext={"groups"={"user:read", "book_rating:read"}},
  *  denormalizationContext={"groups"={"user:write"}},
@@ -41,7 +42,7 @@ class User implements UserInterface
    * @ORM\Id()
    * @ORM\GeneratedValue(strategy="AUTO")
    * @ORM\Column(type="integer")
-   * @Groups({"book_rating:read", "user:read"})
+   * @Groups({"book_rating:read", "user:read", "book:read"})
    */
   private $id;
 
@@ -83,6 +84,7 @@ class User implements UserInterface
 
   /**
    * @ORM\ManyToMany(targetEntity="App\Entity\Book", inversedBy="userWantsToRead")
+   * @ApiSubresource()
    */
   private $toRead;
 
@@ -95,6 +97,7 @@ class User implements UserInterface
 
   /**
    * @ORM\OneToMany(targetEntity="App\Entity\BookRating", mappedBy="user", orphanRemoval=true)
+   * @ApiSubresource()
    */
   private $bookRatings;
 
